@@ -157,12 +157,14 @@
     <div class="mesh-blob w-80 h-80 bottom-0 right-0 opacity-30" style="animation-delay: -5s;"></div>
     <div id="particles-container" class="absolute inset-0 overflow-hidden pointer-events-none z-0 fixed h-full w-full"></div>
 
-    <!-- Music Toggle Button -->
-    <button id="music-toggle" class="fixed top-6 right-6 z-50 p-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-white hover:bg-white/20 transition-all hidden opacity-0 shadow-lg" onclick="toggleMusic()">
-        <svg id="icon-sound-on" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <!-- Music Toggle Button (Now Visible by Default) -->
+    <button id="music-toggle" class="fixed top-6 right-6 z-50 p-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-white hover:bg-white/20 transition-all shadow-lg animate-pulse" onclick="toggleMusic()">
+        <!-- Sound On Icon (Hidden initially) -->
+        <svg id="icon-sound-on" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
         </svg>
-        <svg id="icon-sound-off" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <!-- Sound Off Icon (Visible initially) -->
+        <svg id="icon-sound-off" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
         </svg>
@@ -198,7 +200,7 @@
                         </p>
                     </div>
 
-                    <!-- *** COUNTDOWN TIMER (Hidden until logic runs) *** -->
+                    <!-- *** COUNTDOWN TIMER *** -->
                     <div id="countdown-wrapper" class="w-full flex flex-col items-center gap-4 mt-4 hidden">
                         <p class="text-pink-300 text-lg font-ruqaa animate-pulse">
                             ⏳ يفتح الرابط في يوم عيد الميلاد
@@ -226,6 +228,12 @@
                                 <span class="text-xs text-gray-400 uppercase tracking-widest">Sec</span>
                             </div>
                         </div>
+
+                        <!-- Music Prompt for Waiting Users -->
+                        <button onclick="toggleMusic()" class="mt-4 px-6 py-2 bg-white/10 hover:bg-white/20 rounded-full text-sm text-pink-200 backdrop-blur-sm border border-pink-200/30 transition-all flex items-center gap-2 group cursor-pointer shadow-lg">
+                            <span class="group-hover:animate-pulse text-xl">🎵</span>
+                            <span class="font-ruqaa text-lg pt-1">شغل الموسيقى بينما تنتظر</span>
+                        </button>
                     </div>
 
                     <!-- LOGIN INPUTS (Hidden by default, shown when timer ends) -->
@@ -333,10 +341,8 @@
         createParticles();
 
         // --- 2. COUNTDOWN LOGIC (SYRIA TIME UTC+3) ---
-        // Set Target Date: December 28th of current year in Syria (UTC+3)
         const currentYear = new Date().getFullYear();
         // ISO 8601 format with explicit timezone offset (+03:00 for Syria)
-        // Dec 28, 00:00:00 Syria Time
         const targetDate = new Date(`${currentYear}-12-28T00:00:00+03:00`).getTime(); 
 
         const countdownWrapper = document.getElementById("countdown-wrapper");
@@ -348,8 +354,6 @@
         const elSeconds = document.getElementById("cd-seconds");
 
         function updateCountdown() {
-            // Get current time in UTC (Date.now() returns milliseconds since epoch)
-            // The subtraction below compares two UTC timestamps, ensuring correct duration.
             const now = new Date().getTime();
             const distance = targetDate - now;
 
@@ -419,9 +423,13 @@
                 loginSection.style.transform = 'translateY(-20px)'; 
                 
                 music.volume = 0.5;
-                music.play().catch(e => console.log("Audio:", e));
-                musicToggle.classList.remove('hidden');
-                setTimeout(() => { musicToggle.style.opacity = '1'; }, 100);
+                // Only play if not already playing
+                if (music.paused) {
+                    music.play().catch(e => console.log("Audio:", e));
+                    // Update toggle icon state manually if needed
+                    document.getElementById('icon-sound-on').classList.remove('hidden');
+                    document.getElementById('icon-sound-off').classList.add('hidden');
+                }
 
                 setTimeout(() => {
                     loginSection.classList.add('hidden');
