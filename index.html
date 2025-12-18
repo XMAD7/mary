@@ -332,11 +332,12 @@
         }
         createParticles();
 
-        // --- 2. COUNTDOWN LOGIC ---
-        // Set Target Date: December 28th of current year
+        // --- 2. COUNTDOWN LOGIC (SYRIA TIME UTC+3) ---
+        // Set Target Date: December 28th of current year in Syria (UTC+3)
         const currentYear = new Date().getFullYear();
-        // Month is 0-indexed (11 = Dec)
-        const targetDate = new Date(currentYear, 11, 28, 0, 0, 0).getTime(); 
+        // ISO 8601 format with explicit timezone offset (+03:00 for Syria)
+        // Dec 28, 00:00:00 Syria Time
+        const targetDate = new Date(`${currentYear}-12-28T00:00:00+03:00`).getTime(); 
 
         const countdownWrapper = document.getElementById("countdown-wrapper");
         const loginInputs = document.getElementById("login-inputs-container");
@@ -347,6 +348,8 @@
         const elSeconds = document.getElementById("cd-seconds");
 
         function updateCountdown() {
+            // Get current time in UTC (Date.now() returns milliseconds since epoch)
+            // The subtraction below compares two UTC timestamps, ensuring correct duration.
             const now = new Date().getTime();
             const distance = targetDate - now;
 
